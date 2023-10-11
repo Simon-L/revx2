@@ -5,11 +5,17 @@ local revx2 = { DEBUG = false }
 function revx2.header_parse_global(buf)
     local magic_1 = buf:i32be(4)
     local slices = buf:i32be(4)
-    buf:skip(12) -- offset to BPM
+    buf:skip(1) -- unused byte
+    local bars = buf:u8(1)
+    local plus_beats = buf:u8(1)
+    local beats_bar = buf:u8(1)
+    local beats_type = buf:u8(1)
+    
+    buf:skip(7) -- offset to BPM
     local tempo = buf:i32be(4) / 1000.0
     
-    if revx2.DEBUG then print(string.format("Global - Magic 1: %d Slices: %d Tempo: %2.2f BPM", magic_1, slices, tempo)) end
-    return slices, tempo
+    if revx2.DEBUG then print(string.format("Global - Magic 1: %d Slices: %d Tempo: %2.2f BPM Bars: %d + %d beats in %d/%d", magic_1, slices, tempo, bars, plus_beats, beats_bar, beats_type)) end
+    return slices, tempo, bars, plus_beats, beats_bar, beats_type
 end
 
 function revx2.header_parse_slice(buf)
@@ -18,7 +24,7 @@ function revx2.header_parse_slice(buf)
     local length = buf:i32be(4)
     local magic_2 = buf:i32be(4)
     
-    if revx2.DEBUG then print(string.format("Slice - Magic 1: %d Start: %d Length: %d Magic 2: %X", magic_1, start, length, magic_2)) end
+    if revx2.DEBUG then print(string.format("Slice - Magic 1: %d Start: %d Length: %d Magic 2: 0x%X", magic_1, start, length, magic_2)) end
     if length > 1 then
         return start, length
     else
@@ -67,11 +73,15 @@ function revx2.parse_file(filename)
 	rx2_buf:skip(-4)
 	rx2_buf_pos = read - 4
 	
-    local slices, tempo = revx2.header_parse_global(rx2_buf)
+    local slices, tempo, bars, plus_beats, beats_bar, beats_type = revx2.header_parse_global(rx2_buf)
     local rx2_info = {
         rx2path = j,
         slices = slices,
         tempo =  tempo,
+        bars = bars,
+        plus_beats = plus_beats,
+        beats_bar = beats_bar,
+        beats_type = beats_type,
         slices_list = {}
     }
 	rx2_buf_pos = rx2_buf_pos + 24 -- header_parse_global reads 24 bytes
