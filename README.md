@@ -1,6 +1,6 @@
 revx2.lua
 ===========
-> :warning: Super WIP stuff! :warning:
+> Kinda WIP stuff! :warning:
 
 This library extracts tempo and slices informations from rx2 files for the ReCycle sampling software by Propellerheads. Designed for `luajit`.
 
@@ -13,7 +13,10 @@ Try the test script by passing an rx2 file as argument
 luajit test_revx2.lua "/path/to/some/file.rx2" 
 ```
 
-Here is its content:
+Or for post-processing dump to json with `luajit test_tojson_revx2.lua "/path/to/some/file.rx2" "/path/to/output/file.json"`.  
+See this [gist](https://gist.github.com/Simon-L/af09988043775b90c2fc1dba6b937c33) for an example usage made for Faust.
+
+Here is the content of the basic test:
 ```lua
 local inspect = require 'inspect'
 
